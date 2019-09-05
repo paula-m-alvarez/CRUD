@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+  <link rel="stylesheet" href="styles.css" type="text/css" media="screen" />
+
+  <script src="https://kit.fontawesome.com/0b67e539cb.js"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+  <title>Paula ABM</title>
+</head>
+
+<body>
+
+  <header>
+    <nav>
+      <p>Paula - ABM</p>
+    </nav>
+  </header>
+
+  <div class="main-container">
+
+    <div class ="oso">
+      <img src="image/3406421-animal-lazy-mammal-sloth-slow-wildlife-zoo_107592.png" />
+      <h3> 1 </h3>
+    </div>
+
+    <section class="cuadro day">
+      <button class="button" onclick="showModal()">
+        <strong> New Item </strong>
+      </button>
+
+
+      <table id="table">
+        <tr>
+          <td>
+            <strong>
+              <h3>Image</h3>
+            </strong>
+          </td>
+          <td>
+            <strong>
+              <h3>Description</h3>
+            </strong>
+          </td>
+          <td>
+            <strong>
+              <h3>Actions</h3>
+            </strong>
+          </td>
+        </tr>
+      </table>
+    </section>
+  </div>
+
+
+
+  <form method="POST" id="form">
+    <div class="content-form">
+      <a href="#close" class="close" onclick="closeModal()">X</a>
+      <h1 id="title">Create New Item</h1>
+      <div class="form1">
+        <label> Select an image </label>
+        <input type="file" name="archivosubido" id="image" />
+      </div>
+
+      <div class="form2">
+        <label>Write a brief description</label>
+        <textarea cols="62" rows="8" placeholder="Write here..." id="description"></textarea>
+      </div>
+
+      <div class="container-button2">
+        <button type="submit" class="button2" id="button"></button>
+      </div>
+    </div>
+  </form>
+
+</body>
+
+</html>
+
+<script src="index.js"></script>
