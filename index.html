@@ -27,7 +27,7 @@
 
     <div class ="oso">
       <img src="image/3406421-animal-lazy-mammal-sloth-slow-wildlife-zoo_107592.png" />
-      <h3 id ="counter"> 0 </h3>
+      <h1 id ="counter"> 0 </h1>
     </div>
 
     <section class="frame">
@@ -65,13 +65,14 @@
       <a href="#close" class="close" onclick="closeModal()">X</a>
       <h1 id="title">Create New Item</h1>
       <div class="form1">
-        <label> Select an image </label>
-        <input type="file" name="archivosubido" id="image" />
+          <label for="image" id="label-image"> Select an image </label>
+          <input type="file" name="archivosubido" id="image" />
+          <img src="" height="200" alt="Image preview..." class="hidden" id="image-view">
       </div>
 
       <div class="form2">
-        <label>Write a brief description</label>
-        <textarea cols="62" rows="8" placeholder="Write here..." id="description"></textarea>
+        <label>Write a short description</label>
+        <textarea cols="62" rows="8"  maxlength="300" placeholder=" Write here..." id="description"></textarea>
       </div>
 
       <div class="container-button2">

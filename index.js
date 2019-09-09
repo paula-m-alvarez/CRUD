@@ -1,41 +1,28 @@
+const title = $("#title");
+const button = $("#button");
+const image = $("#image");
+const description = $("#description");
+const imageView = $("#image-view");
 
-let itemsSize = 0;
+/*COUNTER FUNCTION */
 
-$("#counter").text(`${itemsSize}`);
-
+function displayCounter(itemsSize) {
+  $("#counter").text(`${itemsSize}`);
+}
 
 /* MODAL FUNCTIONS*/
 
 function showModal(id = null) {
-
   document.getElementById("form").style.display = "block";
 
-  var is_new_item = (id === null);
+  let is_new_item = id === null;
 
   $(".save-edit").removeAttr("data-id");
 
   if (is_new_item) {
-
-    $("#title").text("New Item");
-    $("#button").text("Save");
-    $("#button").addClass("save-new").removeClass("save-edit");
-    $("#image").val("");
-    $("#description").val("");
-
+    cleanModal();
   } else {
-
-    items.forEach(function (item, i) {
-      if (item.id == id) {
-        $("#title").text("Update Item");
-        $("#button").text("Update");
-        $("#button").addClass("save-edit").removeClass("save-new");
-        $(".save-edit").attr("data-id", item.id);
-        var dt = new DataTransfer();
-        dt.items.add(item.image);
-        $("#image")[0].files = dt.files;
-        $("#description").val(item.description);
-      }
-    });
+    prepareModalForUpdate(id);
   }
 }
 
@@ -43,9 +30,33 @@ function closeModal() {
   document.getElementById("form").style.display = "none";
 }
 
-/* NEW ITEM FUNCTONS*/
+function cleanModal() {
+  title.text("New Item");
+  button.text("Save");
+  button.addClass("save-new").removeClass("save-edit");
+  image.val("");
+  description.val("");
+  imageView.addClass("hidden");
+}
 
-function appendItems(item) {
+function prepareModalForUpdate(id) {
+  items.forEach(function(item, i) {
+    if (item.id == id) {
+      title.text("Update Item");
+      button.text("Update");
+      button.addClass("save-edit").removeClass("save-new");
+      $(".save-edit").attr("data-id", item.id);
+      image.val("");
+      description.val(item.description);
+      imageView.removeClass("hidden");
+      imageView.attr("src", item.image.data);
+    }
+  });
+}
+
+/* NEW ITEM FUNCTIONS*/
+
+function appendItem(item) {
   let btnEdit = `<button class='edit' id='edit-${item.id}' data-id='${item.id}'> <i class='fas fa-pencil-alt'></i></button>`;
   let btnDelete = `<button class='delete' id='delete-${item.id}' data-id='${item.id}'><i class='fas fa-trash-alt'></i></button>`;
 
@@ -55,67 +66,90 @@ function appendItems(item) {
       <td>${item.description}</td>
       <td>${btnEdit} ${btnDelete}</td>
     </tr>`);
-
-  console.log(item);
 }
 
 function addItem(items, item) {
-  itemsSize += 1;
   items.push(item);
-  appendItems(item);
+  appendItem(item);
+
+  displayCounter(items.length);
+
+  saveItems(items);
 }
 
 /* DELETE ITEM FUNCTIONS */
 
 function deleteItem(id) {
-  itemsSize -= 1;
-  var action = confirm("Are you sure you want to delete this item?");
+  let action = confirm("Are you sure you want to delete this item?");
 
-  items.forEach(function (item, i) {
+  items.forEach(function(item, i) {
     if (item.id == id && action != false) {
       items.splice(i, 1);
       $("#table #item-" + item.id).remove();
     }
   });
-}
 
+  displayCounter(items.length);
+
+  saveItems(items);
+}
 
 /* EDIT ITEM FUNCTIONS */
 
-$("#form").on("click", ".save-edit", function (event) {
-
+$("#form").on("click", ".save-edit", function(event) {
   event.preventDefault();
-  var id = event.target.dataset.id;
-  console.log(id);
 
+  let id = event.target.dataset.id;
   let image = $("#image")[0].files[0];
   let description = $("#description").val();
 
-  items.forEach(function (item, i) {
+  items.forEach(function(item, i) {
     if (item.id == id) {
+      item.image.name = image ? image.name : item.image.name;
+      item.description = description ? description : item.description;
 
-      item.image = image;
-      item.description = description;
+      let tds = $(`#item-${id}`).children();
 
-      var tds = $(`#item-${id}`).children();
-      console.log(tds);
+      if (image) {
+        reader = new FileReader();
+
+        reader.addEventListener(
+          "load",
+          function() {
+            item.image.data = reader.result;
+          },
+          false
+        );
+
+        reader.readAsDataURL(image);
+      }
 
       $(tds[0]).text(item.image.name);
       $(tds[1]).text(item.description);
-    
     }
-  })
+  });
 
   closeModal();
-})
+
+  saveItems(items);
+});
 
 /* ITEMS */
 
-let items = [];
-console.log(items);
+let items = getItems();
 
-$(document).ready(function () {
-  $("#form").on("click", ".save-new", function (event) {
+if (items === null) {
+  items = [];
+}
+
+appendItems(items);
+
+let itemsSize = items.length;
+
+displayCounter(items.length);
+
+$(document).ready(function() {
+  $("#form").on("click", ".save-new", function(event) {
     event.preventDefault();
 
     let image = $("#image")[0].files[0];
@@ -123,14 +157,27 @@ $(document).ready(function () {
 
     let item = {
       id: items.length + 1,
-      image: image,
+      image: {
+        name: image.name
+      },
       description: description
     };
 
-    /* NEW ITEM */
+    if (image) {
+      reader = new FileReader();
 
-    addItem(items, item);
-    console.log(image, description);
+      reader.addEventListener(
+        "load",
+        function() {
+          item.image.data = reader.result;
+          addItem(items, item);
+        },
+        false
+      );
+
+      reader.readAsDataURL(image);
+    }
+
     closeModal();
 
     $("#image").val("");
@@ -141,25 +188,37 @@ $(document).ready(function () {
 
   /* EDIT ITEM */
 
-  table.on("click", ".edit", function (event) {
-
-    var id = this.dataset.id;
-
-    console.log(id);
+  table.on("click", ".edit", function(event) {
+    let id = this.dataset.id;
 
     showModal(id);
-
   });
 
   /* DELETE ITEM */
 
-  table.on("click", ".delete", function (event) {
-
-    var id = this.dataset.id;
-
-    console.log(id);
+  table.on("click", ".delete", function(event) {
+    let id = this.dataset.id;
 
     deleteItem(id);
-
   });
 });
+
+/* SAVE ITEMS */
+
+function saveItems(items) {
+  let itemsJson = JSON.stringify(items);
+
+  localStorage.setItem("items", itemsJson);
+}
+
+function getItems() {
+  let items = localStorage.getItem("items");
+
+  return JSON.parse(items);
+}
+
+function appendItems(items) {
+  items.forEach(function(item, i) {
+    appendItem(item);
+  });
+}
